@@ -6,6 +6,9 @@ pipeline {
         BACKEND_IMAGE = "nikhilabba12/teco-backend"
         FRONTEND_IMAGE = "nikhilabba12/teco-frontend"
 
+        RENDER_BACKEND_DEPLOY_HOOK = "PASTE_BACKEND_RENDER_DEPLOY_HOOK"
+        RENDER_FRONTEND_DEPLOY_HOOK = "PASTE_FRONTEND_RENDER_DEPLOY_HOOK"
+
     }
 
     stages {
@@ -67,12 +70,74 @@ pipeline {
             }
         }
 
+        stage('Pull Latest Images') {
+            steps {
+
+                bat 'docker pull %BACKEND_IMAGE%'
+
+                bat 'docker pull %FRONTEND_IMAGE%'
+
+            }
+        }
+
+        stage('Stop Old Containers') {
+            steps {
+
+                bat 'docker stop teco-backend || exit 0'
+
+                bat 'docker rm teco-backend || exit 0'
+
+                bat 'docker stop teco-frontend || exit 0'
+
+                bat 'docker rm teco-frontend || exit 0'
+
+            }
+        }
+
+        stage('Run Backend Container') {
+            steps {
+
+                bat '''
+                docker run -d -p 5000:5000 ^
+                --name teco-backend ^
+                %BACKEND_IMAGE%
+                '''
+
+            }
+        }
+
+        stage('Run Frontend Container') {
+            steps {
+
+                bat '''
+                docker run -d -p 3000:80 ^
+                --name teco-frontend ^
+                %FRONTEND_IMAGE%
+                '''
+
+            }
+        }
+
         stage('Docker Logs') {
             steps {
 
                 bat 'docker logs teco-backend || exit 0'
 
                 bat 'docker logs teco-frontend || exit 0'
+
+            }
+        }
+
+        stage('Docker Copy Files') {
+            steps {
+
+                bat '''
+                docker cp teco-backend:/app/server.js .
+                '''
+
+                bat '''
+                docker cp teco-frontend:/usr/share/nginx/html/index.html .
+                '''
 
             }
         }
@@ -85,10 +150,34 @@ pipeline {
             }
         }
 
-        stage('Render Deployment Info') {
+        stage('Debug Containers') {
             steps {
 
-                echo 'Render automatically deploys from GitHub'
+                bat 'docker ps -a'
+
+                bat 'docker logs teco-backend || exit 0'
+
+                bat 'docker logs teco-frontend || exit 0'
+
+            }
+        }
+
+        stage('Deploy Backend to Render') {
+            steps {
+
+                bat '''
+                curl -X POST %RENDER_BACKEND_DEPLOY_HOOK%
+                '''
+
+            }
+        }
+
+        stage('Deploy Frontend to Render') {
+            steps {
+
+                bat '''
+                curl -X POST %RENDER_FRONTEND_DEPLOY_HOOK%
+                '''
 
             }
         }
@@ -99,7 +188,7 @@ pipeline {
 
         success {
 
-            echo 'TECO Successfully Built and Deployed'
+            echo 'TECO Successfully Deployed to Render'
 
         }
 
