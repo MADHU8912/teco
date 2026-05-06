@@ -2,11 +2,8 @@ pipeline {
     agent any
 
     environment {
-
         BACKEND_IMAGE = "nikhilabba12/teco-backend"
         FRONTEND_IMAGE = "nikhilabba12/teco-frontend"
-
-        
     }
 
     stages {
@@ -31,7 +28,6 @@ pipeline {
                 )]) {
 
                     bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
-
                 }
             }
         }
@@ -82,11 +78,9 @@ pipeline {
             steps {
 
                 bat 'docker stop teco-backend || exit 0'
-
                 bat 'docker rm teco-backend || exit 0'
 
                 bat 'docker stop teco-frontend || exit 0'
-
                 bat 'docker rm teco-frontend || exit 0'
 
             }
@@ -119,9 +113,9 @@ pipeline {
         stage('Docker Logs') {
             steps {
 
-                bat 'docker logs teco-backend || exit 0'
+                bat 'docker logs teco-backend'
 
-                bat 'docker logs teco-frontend || exit 0'
+                bat 'docker logs teco-frontend'
 
             }
         }
@@ -153,29 +147,9 @@ pipeline {
 
                 bat 'docker ps -a'
 
-                bat 'docker logs teco-backend || exit 0'
+                bat 'docker logs teco-backend'
 
-                bat 'docker logs teco-frontend || exit 0'
-
-            }
-        }
-
-        stage('Deploy Backend to Render') {
-            steps {
-
-                bat '''
-                curl -X POST %RENDER_BACKEND_DEPLOY_HOOK%
-                '''
-
-            }
-        }
-
-        stage('Deploy Frontend to Render') {
-            steps {
-
-                bat '''
-                curl -X POST %RENDER_FRONTEND_DEPLOY_HOOK%
-                '''
+                bat 'docker logs teco-frontend'
 
             }
         }
@@ -186,7 +160,7 @@ pipeline {
 
         success {
 
-            echo 'TECO Successfully Deployed to Render'
+            echo 'TECO CI/CD Pipeline Completed Successfully'
 
         }
 
@@ -197,4 +171,4 @@ pipeline {
         }
 
     }
-}
+}  
