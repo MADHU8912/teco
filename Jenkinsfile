@@ -53,6 +53,16 @@ pipeline {
             }
         }
 
+        stage('Pull Latest Images') {
+            steps {
+
+                bat 'docker pull %BACKEND_IMAGE%'
+
+                bat 'docker pull %FRONTEND_IMAGE%'
+
+            }
+        }
+
         stage('Run Containers') {
             steps {
 
@@ -76,10 +86,34 @@ pipeline {
             }
         }
 
+        stage('Docker Logs') {
+            steps {
+
+                bat 'docker logs teco-backend'
+
+                bat 'docker logs teco-frontend'
+
+            }
+        }
+
+        stage('Docker Copy Files') {
+            steps {
+
+                bat '''
+                docker cp teco-backend:/app/server.js .
+                '''
+
+                bat '''
+                docker cp teco-frontend:/usr/share/nginx/html/index.html .
+                '''
+            }
+        }
+
         stage('Check Running Containers') {
             steps {
                 bat 'docker ps'
             }
         }
+
     }
 }
