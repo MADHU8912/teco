@@ -1,0 +1,26 @@
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: teco-mongo
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    container_name: teco-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: teco-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
