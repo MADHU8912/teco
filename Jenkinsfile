@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
+
         BACKEND_IMAGE = "nikhilabba12/teco-backend"
         FRONTEND_IMAGE = "nikhilabba12/teco-frontend"
+
     }
 
     stages {
@@ -28,6 +30,7 @@ pipeline {
                 )]) {
 
                     bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+
                 }
             }
         }
@@ -64,48 +67,22 @@ pipeline {
             }
         }
 
-        stage('Pull Latest Images') {
+        stage('Git Push Latest Code') {
             steps {
 
-                bat 'docker pull %BACKEND_IMAGE%'
+                bat 'git add .'
 
-                bat 'docker pull %FRONTEND_IMAGE%'
+                bat 'git commit -m "Auto deploy from Jenkins" || exit 0'
+
+                bat 'git push origin main'
 
             }
         }
 
-        stage('Stop Old Containers') {
+        stage('Render Auto Deployment') {
             steps {
 
-                bat 'docker stop teco-backend || exit 0'
-                bat 'docker rm teco-backend || exit 0'
-
-                bat 'docker stop teco-frontend || exit 0'
-                bat 'docker rm teco-frontend || exit 0'
-
-            }
-        }
-
-        stage('Run Backend Container') {
-            steps {
-
-                bat '''
-                docker run -d -p 5000:5000 ^
-                --name teco-backend ^
-                %BACKEND_IMAGE%
-                '''
-
-            }
-        }
-
-        stage('Run Frontend Container') {
-            steps {
-
-                bat '''
-                docker run -d -p 3000:80 ^
-                --name teco-frontend ^
-                %FRONTEND_IMAGE%
-                '''
+                echo 'Render will auto deploy from GitHub'
 
             }
         }
@@ -113,23 +90,9 @@ pipeline {
         stage('Docker Logs') {
             steps {
 
-                bat 'docker logs teco-backend'
+                bat 'docker logs teco-backend || exit 0'
 
-                bat 'docker logs teco-frontend'
-
-            }
-        }
-
-        stage('Docker Copy Files') {
-            steps {
-
-                bat '''
-                docker cp teco-backend:/app/server.js .
-                '''
-
-                bat '''
-                docker cp teco-frontend:/usr/share/nginx/html/index.html .
-                '''
+                bat 'docker logs teco-frontend || exit 0'
 
             }
         }
@@ -142,31 +105,19 @@ pipeline {
             }
         }
 
-        stage('Debug Containers') {
-            steps {
-
-                bat 'docker ps -a'
-
-                bat 'docker logs teco-backend'
-
-                bat 'docker logs teco-frontend'
-
-            }
-        }
-
     }
 
     post {
 
         success {
 
-            echo 'TECO CI/CD Pipeline Completed Successfully'
+            echo 'TECO Successfully Deployed to Render'
 
         }
 
         failure {
 
-            echo 'Pipeline Failed - Check Console Output'
+            echo 'Deployment Failed - Check Jenkins Console Output'
 
         }
 
