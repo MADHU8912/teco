@@ -69,10 +69,9 @@ pipeline {
                 '''
 
                 bat '''
-                docker run -d -p 8080:80 ^
+                docker run -d -p 3000:80 ^
                 --name teco-frontend ^
-                %FRONTEND_IMAGE%
-                '''
+              %FRONTEND_IMAGE%
             }
         }
 
