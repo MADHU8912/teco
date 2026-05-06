@@ -67,26 +67,6 @@ pipeline {
             }
         }
 
-        stage('Git Push Latest Code') {
-            steps {
-
-                bat 'git add .'
-
-                bat 'git commit -m "Auto deploy from Jenkins" || exit 0'
-
-                bat 'git push origin main'
-
-            }
-        }
-
-        stage('Render Auto Deployment') {
-            steps {
-
-                echo 'Render will auto deploy from GitHub'
-
-            }
-        }
-
         stage('Docker Logs') {
             steps {
 
@@ -105,19 +85,27 @@ pipeline {
             }
         }
 
+        stage('Render Deployment Info') {
+            steps {
+
+                echo 'Render automatically deploys from GitHub'
+
+            }
+        }
+
     }
 
     post {
 
         success {
 
-            echo 'TECO Successfully Deployed to Render'
+            echo 'TECO Successfully Built and Deployed'
 
         }
 
         failure {
 
-            echo 'Deployment Failed - Check Jenkins Console Output'
+            echo 'Pipeline Failed - Check Console Output'
 
         }
 
