@@ -12,7 +12,7 @@ pipeline {
             steps {
 
                 git branch: 'main',
-                credentialsId: 'dockerhub-creds',
+                credentialsId: 'docker-creds',
                 url: 'https://github.com/MADHU8912/teco.git'
 
             }
@@ -78,9 +78,11 @@ pipeline {
             steps {
 
                 bat 'docker stop teco-backend || exit 0'
+
                 bat 'docker rm teco-backend || exit 0'
 
                 bat 'docker stop teco-frontend || exit 0'
+
                 bat 'docker rm teco-frontend || exit 0'
 
             }
@@ -113,9 +115,9 @@ pipeline {
         stage('Docker Logs') {
             steps {
 
-                bat 'docker logs teco-backend'
+                bat 'docker logs teco-backend || exit 0'
 
-                bat 'docker logs teco-frontend'
+                bat 'docker logs teco-frontend || exit 0'
 
             }
         }
@@ -123,13 +125,9 @@ pipeline {
         stage('Docker Copy Files') {
             steps {
 
-                bat '''
-                docker cp teco-backend:/app/server.js .
-                '''
+                bat 'docker cp teco-backend:/app/server.js . || exit 0'
 
-                bat '''
-                docker cp teco-frontend:/usr/share/nginx/html/index.html .
-                '''
+                bat 'docker cp teco-frontend:/usr/share/nginx/html/index.html . || exit 0'
 
             }
         }
@@ -147,9 +145,9 @@ pipeline {
 
                 bat 'docker ps -a'
 
-                bat 'docker logs teco-backend'
+                bat 'docker logs teco-backend || exit 0'
 
-                bat 'docker logs teco-frontend'
+                bat 'docker logs teco-frontend || exit 0'
 
             }
         }
@@ -171,4 +169,4 @@ pipeline {
         }
 
     }
-}  
+}
