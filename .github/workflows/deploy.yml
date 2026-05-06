@@ -24,4 +24,4 @@ jobs:
         npm install
 
     - name: Docker Build
-      run: docker-compose build
+      run: docker compose build
