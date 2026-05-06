@@ -1,4 +1,3 @@
-
 services:
 
   mongo:
@@ -9,6 +8,7 @@ services:
 
   backend:
     build: ./backend
+    image: nikhilabba12/teco-backend
     container_name: teco-backend
     ports:
       - "5000:5000"
@@ -19,6 +19,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: nikhilabba12/teco-frontend
     container_name: teco-frontend
     ports:
       - "8080:80"
