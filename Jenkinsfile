@@ -6,9 +6,7 @@ pipeline {
         BACKEND_IMAGE = "nikhilabba12/teco-backend"
         FRONTEND_IMAGE = "nikhilabba12/teco-frontend"
 
-        RENDER_BACKEND_DEPLOY_HOOK = "PASTE_BACKEND_RENDER_DEPLOY_HOOK"
-        RENDER_FRONTEND_DEPLOY_HOOK = "PASTE_FRONTEND_RENDER_DEPLOY_HOOK"
-
+        
     }
 
     stages {
