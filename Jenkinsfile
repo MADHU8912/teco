@@ -115,11 +115,19 @@ pipeline {
         stage('Run Backend Container') {
             steps {
 
-                bat '''
-                docker run -d -p 5000:5000 ^
-                --name teco-backend ^
-                %BACKEND_IMAGE%
-                '''
+                withCredentials([string(
+                    credentialsId: 'mongo-uri',
+                    variable: 'MONGO_URI'
+                )]) {
+
+                    bat '''
+                    docker run -d -p 5000:5000 ^
+                    --name teco-backend ^
+                    -e MONGO_URI=%MONGO_URI% ^
+                    %BACKEND_IMAGE%
+                    '''
+
+                }
 
             }
         }
@@ -192,19 +200,49 @@ pipeline {
             }
         }
 
+        stage('Kubernetes Deploy') {
+            steps {
+
+                bat '''
+                kubectl apply -f k8s/
+                '''
+
+            }
+        }
+
+        stage('Check Kubernetes Pods') {
+            steps {
+
+                bat '''
+                kubectl get pods
+                '''
+
+            }
+        }
+
+        stage('Check Kubernetes Services') {
+            steps {
+
+                bat '''
+                kubectl get services
+                '''
+
+            }
+        }
+
     }
 
     post {
 
         success {
 
-            echo 'TECO CI/CD Pipeline Completed Successfully'
+            echo 'TECO CI/CD + Kubernetes Deployment Successful'
 
         }
 
         failure {
 
-            echo 'Pipeline Failed - Check Console Output'
+            echo 'Pipeline Failed - Check Jenkins Console Output'
 
         }
 

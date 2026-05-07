@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: teco-backend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: teco-backend
+
+  template:
+    metadata:
+      labels:
+        app: teco-backend
+
+    spec:
+      containers:
+      - name: teco-backend
+
+        image: nikhilabba12/teco-backend:latest
+
+        ports:
+        - containerPort: 5000
+
+        env:
+        - name: MONGO_URI
+          value: "mongodb+srv://USERNAME:PASSWORD@cluster0.mongodb.net/teco"
