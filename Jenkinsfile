@@ -2,8 +2,13 @@ pipeline {
     agent any
 
     environment {
+
         BACKEND_IMAGE = "nikhilabba12/teco-backend"
         FRONTEND_IMAGE = "nikhilabba12/teco-frontend"
+
+        RENDER_BACKEND_DEPLOY_HOOK =  https://api.render.com/deploy/srv-d7u1ogegvqtc73c2m34g?key=0rRhFRbfuQE
+        RENDER_FRONTEND_DEPLOY_HOOK = https://api.render.com/deploy/srv-d7u1ppd0lvsc73ekksog?key=0cdqGLxPMPQ
+
     }
 
     stages {
@@ -12,7 +17,7 @@ pipeline {
             steps {
 
                 git branch: 'main',
-                credentialsId: 'docker-creds',
+                credentialsId: 'dockerhub-creds',
                 url: 'https://github.com/MADHU8912/teco.git'
 
             }
@@ -28,6 +33,7 @@ pipeline {
                 )]) {
 
                     bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+
                 }
             }
         }
@@ -125,9 +131,13 @@ pipeline {
         stage('Docker Copy Files') {
             steps {
 
-                bat 'docker cp teco-backend:/app/server.js . || exit 0'
+                bat '''
+                docker cp teco-backend:/app/server.js .
+                '''
 
-                bat 'docker cp teco-frontend:/usr/share/nginx/html/index.html . || exit 0'
+                bat '''
+                docker cp teco-frontend:/usr/share/nginx/html/index.html .
+                '''
 
             }
         }
@@ -152,13 +162,33 @@ pipeline {
             }
         }
 
+        stage('Deploy Backend to Render') {
+            steps {
+
+                bat '''
+                curl -X POST %RENDER_BACKEND_DEPLOY_HOOK%
+                '''
+
+            }
+        }
+
+        stage('Deploy Frontend to Render') {
+            steps {
+
+                bat '''
+                curl -X POST %RENDER_FRONTEND_DEPLOY_HOOK%
+                '''
+
+            }
+        }
+
     }
 
     post {
 
         success {
 
-            echo 'TECO CI/CD Pipeline Completed Successfully'
+            echo 'TECO Successfully Deployed to Render'
 
         }
 
