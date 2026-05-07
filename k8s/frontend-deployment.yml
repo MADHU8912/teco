@@ -1,21 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: teco-frontend
-
 spec:
   replicas: 1
-
   selector:
     matchLabels:
       app: teco-frontend
-
   template:
     metadata:
       labels:
         app: teco-frontend
-
     spec:
       containers:
       - name: teco-frontend
