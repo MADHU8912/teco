@@ -1,13 +1,11 @@
 pipeline {
+
     agent any
 
     environment {
 
         BACKEND_IMAGE = "nikhilabba12/teco-backend"
         FRONTEND_IMAGE = "nikhilabba12/teco-frontend"
-
-        RENDER_BACKEND_DEPLOY_HOOK =  https://api.render.com/deploy/srv-d7u1ogegvqtc73c2m34g?key=0rRhFRbfuQE
-        RENDER_FRONTEND_DEPLOY_HOOK = https://api.render.com/deploy/srv-d7u1ppd0lvsc73ekksog?key=0cdqGLxPMPQ
 
     }
 
@@ -17,7 +15,7 @@ pipeline {
             steps {
 
                 git branch: 'main',
-                credentialsId: 'dockerhub-creds',
+                credentialsId: 'docker-creds',
                 url: 'https://github.com/MADHU8912/teco.git'
 
             }
@@ -41,7 +39,9 @@ pipeline {
         stage('Build Backend Image') {
             steps {
 
-                bat 'docker build -t %BACKEND_IMAGE% ./backend'
+                bat '''
+                docker build -t %BACKEND_IMAGE% ./backend
+                '''
 
             }
         }
@@ -49,7 +49,9 @@ pipeline {
         stage('Build Frontend Image') {
             steps {
 
-                bat 'docker build -t %FRONTEND_IMAGE% ./frontend'
+                bat '''
+                docker build -t %FRONTEND_IMAGE% ./frontend
+                '''
 
             }
         }
@@ -57,7 +59,9 @@ pipeline {
         stage('Push Backend Image') {
             steps {
 
-                bat 'docker push %BACKEND_IMAGE%'
+                bat '''
+                docker push %BACKEND_IMAGE%
+                '''
 
             }
         }
@@ -65,7 +69,9 @@ pipeline {
         stage('Push Frontend Image') {
             steps {
 
-                bat 'docker push %FRONTEND_IMAGE%'
+                bat '''
+                docker push %FRONTEND_IMAGE%
+                '''
 
             }
         }
@@ -73,9 +79,13 @@ pipeline {
         stage('Pull Latest Images') {
             steps {
 
-                bat 'docker pull %BACKEND_IMAGE%'
+                bat '''
+                docker pull %BACKEND_IMAGE%
+                '''
 
-                bat 'docker pull %FRONTEND_IMAGE%'
+                bat '''
+                docker pull %FRONTEND_IMAGE%
+                '''
 
             }
         }
@@ -83,13 +93,21 @@ pipeline {
         stage('Stop Old Containers') {
             steps {
 
-                bat 'docker stop teco-backend || exit 0'
+                bat '''
+                docker stop teco-backend || exit 0
+                '''
 
-                bat 'docker rm teco-backend || exit 0'
+                bat '''
+                docker rm teco-backend || exit 0
+                '''
 
-                bat 'docker stop teco-frontend || exit 0'
+                bat '''
+                docker stop teco-frontend || exit 0
+                '''
 
-                bat 'docker rm teco-frontend || exit 0'
+                bat '''
+                docker rm teco-frontend || exit 0
+                '''
 
             }
         }
@@ -121,9 +139,13 @@ pipeline {
         stage('Docker Logs') {
             steps {
 
-                bat 'docker logs teco-backend || exit 0'
+                bat '''
+                docker logs teco-backend || exit 0
+                '''
 
-                bat 'docker logs teco-frontend || exit 0'
+                bat '''
+                docker logs teco-frontend || exit 0
+                '''
 
             }
         }
@@ -132,11 +154,11 @@ pipeline {
             steps {
 
                 bat '''
-                docker cp teco-backend:/app/server.js .
+                docker cp teco-backend:/app/server.js . || exit 0
                 '''
 
                 bat '''
-                docker cp teco-frontend:/usr/share/nginx/html/index.html .
+                docker cp teco-frontend:/usr/share/nginx/html/index.html . || exit 0
                 '''
 
             }
@@ -145,7 +167,9 @@ pipeline {
         stage('Check Running Containers') {
             steps {
 
-                bat 'docker ps'
+                bat '''
+                docker ps
+                '''
 
             }
         }
@@ -153,30 +177,16 @@ pipeline {
         stage('Debug Containers') {
             steps {
 
-                bat 'docker ps -a'
-
-                bat 'docker logs teco-backend || exit 0'
-
-                bat 'docker logs teco-frontend || exit 0'
-
-            }
-        }
-
-        stage('Deploy Backend to Render') {
-            steps {
-
                 bat '''
-                curl -X POST %RENDER_BACKEND_DEPLOY_HOOK%
+                docker ps -a
                 '''
 
-            }
-        }
-
-        stage('Deploy Frontend to Render') {
-            steps {
+                bat '''
+                docker logs teco-backend || exit 0
+                '''
 
                 bat '''
-                curl -X POST %RENDER_FRONTEND_DEPLOY_HOOK%
+                docker logs teco-frontend || exit 0
                 '''
 
             }
@@ -188,7 +198,7 @@ pipeline {
 
         success {
 
-            echo 'TECO Successfully Deployed to Render'
+            echo 'TECO CI/CD Pipeline Completed Successfully'
 
         }
 
