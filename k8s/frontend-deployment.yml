@@ -19,8 +19,6 @@ spec:
     spec:
       containers:
       - name: teco-frontend
-
-        image: nikhilabba12/teco-frontend:latest
-
+        image: nikhilabba12/teco-frontend
         ports:
         - containerPort: 80
