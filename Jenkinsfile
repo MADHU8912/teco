@@ -202,43 +202,13 @@ pipeline {
             }
         }
 
-        stage('Kubernetes Deploy') {
-            steps {
-
-                bat '''
-                kubectl apply -f k8s/ --validate=false
-                '''
-
-            }
-        }
-
-        stage('Check Kubernetes Pods') {
-            steps {
-
-                bat '''
-                kubectl get pods
-                '''
-
-            }
-        }
-
-        stage('Check Kubernetes Services') {
-            steps {
-
-                bat '''
-                kubectl get services
-                '''
-
-            }
-        }
-
     }
 
     post {
 
         success {
 
-            echo 'TECO CI/CD + Kubernetes Deployment Successful'
+            echo 'TECO CI/CD Pipeline Completed Successfully'
 
         }
 
