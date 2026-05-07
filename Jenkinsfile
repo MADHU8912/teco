@@ -122,12 +122,12 @@ pipeline {
                     variable: 'MONGO_URI'
                 )]) {
 
-                    bat '''
+                    bat """
                     docker run -d -p 5000:5000 ^
                     --name teco-backend ^
-                    -e MONGO_URI=%MONGO_URI% ^
+                    -e MONGO_URI="%MONGO_URI%" ^
                     %BACKEND_IMAGE%
-                    '''
+                    """
 
                 }
 
